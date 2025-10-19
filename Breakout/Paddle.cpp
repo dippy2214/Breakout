@@ -13,21 +13,31 @@ Paddle::~Paddle()
 {
 }
 
-void Paddle::moveLeft(float dt)
+void Paddle::moveLeft(float dt, const sf::RenderWindow* window)
 {
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
     float position = _sprite.getPosition().x;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && position > 0)
+    //bool move = sf::Keyboard::isKeyPressed(sf::Keyboard::A) && position > 0;
+    bool move = mousePos.x < position;
+
+    if (move)
     {
         _sprite.move(sf::Vector2f(-dt * PADDLE_SPEED, 0));
     }
+
+
 }
 
-void Paddle::moveRight(float dt)
+void Paddle::moveRight(float dt, const sf::RenderWindow* window)
 {
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
     float position = _sprite.getPosition().x;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && position < _window->getSize().x - _width)
+    //bool move = sf::Keyboard::isKeyPressed(sf::Keyboard::A) && position > 0;
+    bool move = mousePos.x > position;
+
+    if (move)
     {
         _sprite.move(sf::Vector2f(dt * PADDLE_SPEED, 0));
     }

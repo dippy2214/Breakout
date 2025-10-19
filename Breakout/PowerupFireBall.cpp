@@ -24,5 +24,5 @@ PowerupFireBall::~PowerupFireBall()
 std::pair<POWERUPS, float> PowerupFireBall::applyEffect()
 {
     _ball->setFireBall(5.0f);
-    return { fireBall, 5.0f };
+    return { fireBall, POWERUP_TIME };
 }

@@ -33,3 +33,13 @@ fire ball (green)
 
 # Time Details and Changelist
 <Add information to this section about the time you've taken for this task along with a professional changelist.>
+
+Fri 16:15 - 16:45
+fixed circular dependancy in PowerupBase.h
+paddle now moves based on mouse position
+Sat 14:10 - 15:03
+basic screen shake on damage
+Sun 11:30 - 12:30
+powerup progress bar implemented
+15:45 - 16:55
+score leaderboard and saving system implemented - game stops updating when over

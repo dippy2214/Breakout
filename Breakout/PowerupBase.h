@@ -6,7 +6,7 @@
 #include "Ball.h"
 #include <vector>
 
-#include "PowerupFireBall.h"
+//#include "PowerupFireBall.h"
 
 
 class PowerupBase
@@ -29,6 +29,7 @@ protected: // Protected so derived classes can access these members
     static constexpr float RADIUS = 20.f;               // size of powerup on screen
     static constexpr float FLOAT_DOWN_SPEED = 250.0f;   // speed of fall
     static constexpr float AMPLITUDE_OF_FALL = 80.0f;   // waviness of fall
+    
 
     // Game logic
     float _time;

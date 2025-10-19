@@ -13,5 +13,5 @@ PowerupSlowBall::~PowerupSlowBall()
 std::pair<POWERUPS, float> PowerupSlowBall::applyEffect()
 {
     _ball->setVelocity(0.5f, 5.0f);
-    return { slowBall, 5.0f };
+    return { slowBall, POWERUP_TIME };
 }

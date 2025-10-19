@@ -21,6 +21,8 @@ private:
 	GameManager* _gameManager;
 	
 	sf::RenderWindow* _window;
+	sf::RectangleShape* _progressBar;
+	sf::RectangleShape* _progressBarBackground;
 	sf::Font _font;
 	sf::Text _powerupText;
 

@@ -2,6 +2,9 @@
 #include "Ball.h"
 #include "PowerupManager.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 GameManager::GameManager(sf::RenderWindow* window)
     : _window(window), _paddle(nullptr), _ball(nullptr), _brickManager(nullptr), _powerupManager(nullptr),
@@ -23,7 +26,7 @@ void GameManager::initialize()
     _ball = new Ball(_window, 400.0f, this); 
     _powerupManager = new PowerupManager(_window, _paddle, _ball);
     _ui = new UI(_window, _lives, this);
-
+    _view = _window->getDefaultView();
     // Create bricks
     _brickManager->createBricks(5, 10, 80.0f, 30.0f, 5.0f);
 }
@@ -37,12 +40,17 @@ void GameManager::update(float dt)
 
     if (_lives <= 0)
     {
+        _gameRunning = false;
         _masterText.setString("Game over.");
+        SaveScore();
+        
         return;
     }
     if (_levelComplete)
     {
         _masterText.setString("Level completed.");
+        _gameRunning = false;
+        SaveScore();
         return;
     }
     // pause and pause handling
@@ -67,6 +75,33 @@ void GameManager::update(float dt)
         return;
     }
 
+    if (_shakeTimer > 0)
+    {
+        if (_view.getTransform() == _window->getDefaultView().getTransform())
+        {
+            float xoffset = (rand() % 11) - 5;
+            float yoffset = (rand() % 11) - 5;
+            //std::cout << xoffset << ", " << yoffset << "\n";
+            _view.move(xoffset, yoffset);
+            _shakeTimer -= dt;
+            if (_shakeTimer == 0) _shakeTimer -= 1; //make sure we can keep 0 as a free value for no updates
+            _window->setView(_view);
+            //std::cout << "random move\n";
+        }
+        else //reset shake back to 0,0 so that the view doesnt just leave the screen
+        {
+            _view = _window->getDefaultView();
+            _window->setView(_view);
+            //std::cout << "reset move\n";
+        }
+    }
+    else if (_shakeTimer < 0)
+    {
+        _view = _window->getDefaultView();
+        _window->setView(_view);
+        _shakeTimer = 0;
+    }
+
     // timer.
     _time += dt;
 
@@ -78,8 +113,8 @@ void GameManager::update(float dt)
     }
 
     // move paddle
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) _paddle->moveRight(dt);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) _paddle->moveLeft(dt);
+    _paddle->moveRight(dt, _window);
+    _paddle->moveLeft(dt, _window);
 
     // update everything 
     _paddle->update(dt);
@@ -93,6 +128,7 @@ void GameManager::loseLife()
     _ui->lifeLost(_lives);
 
     // TODO screen shake.
+    _shakeTimer = SCREENSHAKE_TIME_BUFFER;
 }
 
 void GameManager::render()
@@ -109,6 +145,57 @@ void GameManager::levelComplete()
 {
     _levelComplete = true;
 }
+
+void GameManager::IncrementScore()
+{
+    _score++;
+}
+
+void GameManager::SaveScore()
+{
+    std::fstream saveFile("scores.txt", std::ios::in | std::ios::out | std::ios::app);
+    std::vector<int> scores;
+    if (saveFile.is_open())
+    {
+        int numbuf;
+
+        saveFile << std::to_string(_score) << "\n";
+        saveFile.flush(); // make sure it’s written
+        saveFile.seekg(0);
+        std::string line;
+        while (std::getline(saveFile, line))
+        {
+            std::stringstream ss(line);
+            if (ss >> numbuf)
+            {
+                std::cout << "found a score\n";
+                scores.emplace_back(numbuf);
+            }
+            else
+            {
+                std::cout << "found a non number\n";
+            }
+        }
+        std::sort(scores.begin(), scores.end(), std::greater<int>());
+
+    }
+    else
+    {
+        std::cout << "failed to open scores file\n";
+    }
+    saveFile.close();
+    size_t count = std::min<size_t>(5, scores.size());
+    std::ostringstream oss;
+    for (size_t i = 0; i < count; ++i) {
+        oss << scores[i];
+        if (i != count - 1)
+            oss << "\n"; // separate with space
+    }
+
+    std::string firstFive = oss.str();
+    _masterText.setString(_masterText.getString() + "\n" + firstFive);
+}
+
 
 sf::RenderWindow* GameManager::getWindow() const { return _window; }
 UI* GameManager::getUI() const { return _ui; }
